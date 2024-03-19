@@ -34,7 +34,6 @@ import com.t8rin.dynamic.theme.ColorTuple
 import com.t8rin.dynamic.theme.extractPrimaryColor
 import com.t8rin.logger.makeLog
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.olshevski.navigation.reimagined.navController
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -73,8 +72,6 @@ class MainViewModel @Inject constructor(
 
     private val _settingsState = mutableStateOf(SettingsState.Default)
     val settingsState: SettingsState by _settingsState
-
-    val navController = navController<Screen>(Screen.Main)
 
     private val _uris = mutableStateOf<List<Uri>?>(null)
     val uris by _uris

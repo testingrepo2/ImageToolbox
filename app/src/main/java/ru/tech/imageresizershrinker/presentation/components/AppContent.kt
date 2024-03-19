@@ -42,8 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import dev.olshevski.navigation.reimagined.NavAction
-import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.delay
 import ru.tech.imageresizershrinker.core.crash.components.GlobalExceptionHandler
 import ru.tech.imageresizershrinker.core.filters.presentation.utils.LocalFavoriteFiltersInteractor
@@ -59,6 +57,7 @@ import ru.tech.imageresizershrinker.core.ui.utils.confetti.rememberConfettiHostS
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.isInstalledFromPlayStore
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ReviewHandler
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.navigate
 import ru.tech.imageresizershrinker.core.ui.widget.UpdateSheet
 import ru.tech.imageresizershrinker.core.ui.widget.haptics.customHapticFeedback
 import ru.tech.imageresizershrinker.core.ui.widget.other.LocalToastHostState
@@ -86,7 +85,9 @@ internal fun AppContent(
     var randomEmojiKey by remember {
         mutableIntStateOf(0)
     }
-    val backstack = viewModel.navController.backstack.entries
+    val navController = LocalNavController.current
+
+    val backstack = navController.stack.value.backStack
     LaunchedEffect(backstack) {
         delay(200L) // Delay for transition
         randomEmojiKey++
@@ -98,10 +99,8 @@ internal fun AppContent(
         }
     }
     LaunchedEffect(currentDestination) {
-        currentDestination?.takeIf {
-            viewModel.navController.backstack.action == NavAction.Navigate
-        }?.destination?.let {
-            GlobalExceptionHandler.registerScreenOpen(it)
+        currentDestination?.let {
+            GlobalExceptionHandler.registerScreenOpen(it.configuration)
         }
     }
 
@@ -129,7 +128,6 @@ internal fun AppContent(
     CompositionLocalProvider(
         LocalToastHostState provides viewModel.toastHostState,
         LocalSettingsState provides settingsState,
-        LocalNavController provides viewModel.navController,
         LocalEditPresetsState provides editPresetsState,
         LocalConfettiHostState provides rememberConfettiHostState(),
         LocalImageLoader provides viewModel.imageLoader,
@@ -197,7 +195,7 @@ internal fun AppContent(
                     extraImageType = viewModel.extraImageType,
                     visible = showSelectSheet,
                     navigate = { screen ->
-                        viewModel.navController.navigate(screen)
+                        navController.navigate(screen)
                         showSelectSheet.value = false
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             clipboardManager.clearPrimaryClip()

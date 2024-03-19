@@ -120,8 +120,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.getSystemService
-import dev.olshevski.navigation.reimagined.navigate
-import dev.olshevski.navigation.reimagined.popUpTo
+import com.arkivanov.decompose.router.stack.popWhile
 import kotlinx.coroutines.launch
 import ru.tech.imageresizershrinker.core.domain.APP_LINK
 import ru.tech.imageresizershrinker.core.resources.BuildConfig
@@ -136,6 +135,7 @@ import ru.tech.imageresizershrinker.core.ui.utils.helper.clipList
 import ru.tech.imageresizershrinker.core.ui.utils.helper.rememberClipboardData
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.navigate
 import ru.tech.imageresizershrinker.core.ui.widget.buttons.EnhancedButton
 import ru.tech.imageresizershrinker.core.ui.widget.buttons.EnhancedFloatingActionButton
 import ru.tech.imageresizershrinker.core.ui.widget.buttons.EnhancedIconButton
@@ -451,7 +451,7 @@ internal fun MainScreenContent(
                                             )
                                             PreferenceItemOverload(
                                                 onClick = {
-                                                    navController.popUpTo { it == Screen.Main }
+                                                    navController.popWhile { it != Screen.Main }
                                                     navController.navigate(screen)
                                                 },
                                                 color = MaterialTheme.colorScheme.surfaceContainerLow,

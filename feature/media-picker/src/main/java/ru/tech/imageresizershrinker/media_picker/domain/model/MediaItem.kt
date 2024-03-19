@@ -33,11 +33,11 @@ sealed class MediaItem {
 
 }
 
-val Any.isHeaderKey: Boolean
+internal val Any.isHeaderKey: Boolean
     get() = this is String && this.startsWith("header_")
 
-val Any.isBigHeaderKey: Boolean
+internal val Any.isBigHeaderKey: Boolean
     get() = this is String && this.startsWith("header_big_")
 
-val Any.isIgnoredKey: Boolean
+internal val Any.isIgnoredKey: Boolean
     get() = this is String && this == "aboveGrid"

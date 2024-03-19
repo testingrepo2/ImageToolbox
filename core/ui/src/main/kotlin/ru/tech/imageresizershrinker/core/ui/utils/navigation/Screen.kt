@@ -43,7 +43,7 @@ import androidx.compose.material.icons.rounded.Texture
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
+import kotlinx.serialization.Serializable
 import ru.tech.imageresizershrinker.core.resources.R
 import ru.tech.imageresizershrinker.core.ui.icons.material.Apng
 import ru.tech.imageresizershrinker.core.ui.icons.material.ApngBox
@@ -64,13 +64,13 @@ import ru.tech.imageresizershrinker.core.ui.icons.material.PaletteSwatch
 import ru.tech.imageresizershrinker.core.ui.icons.material.Toolbox
 import ru.tech.imageresizershrinker.core.ui.icons.material.Transparency
 
-@Parcelize
+@Serializable
 sealed class Screen(
     open val id: Int,
-    val icon: @RawValue ImageVector?,
+    val icon: ImageVector?,
     @StringRes val title: Int,
     @StringRes val subtitle: Int
-) : Parcelable {
+) {
 
     data object EasterEgg : Screen(
         id = -2,

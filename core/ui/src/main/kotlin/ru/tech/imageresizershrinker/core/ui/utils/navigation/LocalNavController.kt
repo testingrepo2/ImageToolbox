@@ -18,7 +18,12 @@
 package ru.tech.imageresizershrinker.core.ui.utils.navigation
 
 import androidx.compose.runtime.compositionLocalOf
-import dev.olshevski.navigation.reimagined.NavController
+import com.arkivanov.decompose.ExperimentalDecomposeApi
+import com.arkivanov.decompose.router.stack.pushNew
+import io.github.xxfast.decompose.router.stack.Router
 
 val LocalNavController =
-    compositionLocalOf<NavController<Screen>> { error("NavController not present") }
+    compositionLocalOf<Router<Screen>> { error("NavController not present") }
+
+@OptIn(ExperimentalDecomposeApi::class)
+fun Router<Screen>.navigate(screen: Screen) = pushNew(screen)

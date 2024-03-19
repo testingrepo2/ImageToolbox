@@ -90,7 +90,7 @@ fun PresetSelector(
     val editPresetsState = LocalEditPresetsState.current
     val data = settingsState.presets
 
-    val screen = LocalNavController.current.backstack.entries.last().destination
+    val screen = LocalNavController.current.stack.value.backStack.last().configuration
 
     val state = rememberRevealState()
     val scope = rememberCoroutineScope()

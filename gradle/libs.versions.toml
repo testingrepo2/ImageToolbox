@@ -61,8 +61,13 @@ uiautomator = "2.3.0"
 androidxMacroBenchmark = "1.3.0-alpha01"
 
 imageToolboxLibs = "1.2.4"
+decomposeRouter = "0.7.0"
+decompose = "2.2.2"
 
 [libraries]
+decompose-router = { module = "io.github.xxfast:decompose-router", version.ref = "decomposeRouter" }
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-ext = { module = "com.arkivanov.decompose:extensions-compose-jetbrains", version.ref = "decompose" }
 imageToolboxLibs = { module = "com.github.T8RIN:ImageToolboxLibs", version.ref = "imageToolboxLibs" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 aire = { module = "com.github.awxkee:aire", version.ref = "aire" }

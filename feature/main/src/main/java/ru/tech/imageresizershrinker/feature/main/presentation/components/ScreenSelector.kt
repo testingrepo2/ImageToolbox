@@ -18,26 +18,25 @@
 package ru.tech.imageresizershrinker.feature.main.presentation.components
 
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalConfiguration
+import com.arkivanov.decompose.ExperimentalDecomposeApi
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.predictiveback.predictiveBackAnimation
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.slide
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.stackAnimation
+import com.arkivanov.decompose.router.stack.pop
 import com.t8rin.dynamic.theme.LocalDynamicThemeState
 import com.t8rin.dynamic.theme.rememberAppColorTuple
-import dev.olshevski.navigation.reimagined.AnimatedNavHost
-import dev.olshevski.navigation.reimagined.NavAction
-import dev.olshevski.navigation.reimagined.pop
+import io.github.xxfast.decompose.router.LocalRouterContext
+import io.github.xxfast.decompose.router.stack.RoutedContent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.tech.imageresizershrinker.core.settings.presentation.LocalSettingsState
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
 import ru.tech.imageresizershrinker.feature.apng_tools.presentation.ApngToolsScreen
 import ru.tech.imageresizershrinker.feature.bytes_resize.presentation.BytesResizeScreen
@@ -66,12 +65,13 @@ import ru.tech.imageresizershrinker.feature.single_edit.presentation.SingleEditS
 import ru.tech.imageresizershrinker.feature.watermarking.presentation.WatermarkingScreen
 import ru.tech.imageresizershrinker.feature.zip.presentation.ZipScreen
 
+@OptIn(ExperimentalDecomposeApi::class)
 @Composable
 fun ScreenSelector(
     viewModel: MainViewModel
 ) {
     val scope = rememberCoroutineScope()
-    val navController = viewModel.navController
+    val navController = LocalNavController.current
     val settingsState = LocalSettingsState.current
     val themeState = LocalDynamicThemeState.current
     val appColorTuple = rememberAppColorTuple(
@@ -81,9 +81,7 @@ fun ScreenSelector(
     )
     val onGoBack: () -> Unit = {
         viewModel.updateUris(null)
-        navController.apply {
-            if (backstack.entries.size > 1) pop()
-        }
+        navController.pop()
         scope.launch {
             delay(350L)
             themeState.updateColorTuple(appColorTuple)
@@ -92,31 +90,15 @@ fun ScreenSelector(
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val easing = CubicBezierEasing(0.48f, 0.19f, 0.05f, 1.03f)
 
-    AnimatedNavHost(
-        controller = navController,
-        transitionSpec = { action, _, _ ->
-            if (action != NavAction.Pop) {
-                slideInHorizontally(
-                    animationSpec = tween(600, easing = easing),
-                    initialOffsetX = { screenWidth }) + fadeIn(
-                    tween(300, 100)
-                ) togetherWith slideOutHorizontally(
-                    animationSpec = tween(600, easing = easing),
-                    targetOffsetX = { -screenWidth }) + fadeOut(
-                    tween(300, 100)
-                )
-            } else {
-                slideInHorizontally(
-                    animationSpec = tween(600, easing = easing),
-                    initialOffsetX = { -screenWidth }) + fadeIn(
-                    tween(300, 100)
-                ) togetherWith slideOutHorizontally(
-                    animationSpec = tween(600, easing = easing),
-                    targetOffsetX = { screenWidth }) + fadeOut(
-                    tween(300, 100)
-                )
+    RoutedContent(
+        router = navController,
+        animation = predictiveBackAnimation(
+            animation = stackAnimation(slide()),
+            backHandler = LocalRouterContext.current.backHandler,
+            onBack = {
+                navController.pop()
             }
-        }
+        )
     ) { screen ->
         when (screen) {
             is Screen.EasterEgg -> {
@@ -300,9 +282,9 @@ fun ScreenSelector(
             }
         }
     }
-    val currentScreen by remember(navController.backstack.entries) {
+    val currentScreen by remember(navController.stack.value.backStack) {
         derivedStateOf {
-            navController.backstack.entries.lastOrNull()?.destination
+            navController.stack.value.backStack.lastOrNull()?.configuration
         }
     }
     ScreenBasedMaxBrightnessEnforcement(currentScreen)

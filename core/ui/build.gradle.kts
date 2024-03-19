@@ -19,6 +19,7 @@ plugins {
     alias(libs.plugins.image.toolbox.library)
     alias(libs.plugins.image.toolbox.hilt)
     alias(libs.plugins.image.toolbox.compose)
+    id("kotlin-parcelize")
 }
 
 android.namespace = "ru.tech.imageresizershrinker.core.ui"
@@ -26,6 +27,10 @@ android.namespace = "ru.tech.imageresizershrinker.core.ui"
 dependencies {
     api(libs.reimagined)
     api(libs.reimagined.hilt)
+
+    api(libs.decompose.router)
+    api(libs.decompose)
+    api(libs.decompose.ext)
 
     api(libs.androidx.documentfile)
 

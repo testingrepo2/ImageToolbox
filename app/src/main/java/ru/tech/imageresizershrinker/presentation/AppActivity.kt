@@ -21,11 +21,19 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import dagger.hilt.android.AndroidEntryPoint
-import dev.olshevski.navigation.reimagined.navigate
+import io.github.xxfast.decompose.router.LocalRouterContext
+import io.github.xxfast.decompose.router.defaultRouterContext
+import io.github.xxfast.decompose.router.stack.Router
+import io.github.xxfast.decompose.router.stack.rememberRouter
 import ru.tech.imageresizershrinker.core.crash.components.M3Activity
 import ru.tech.imageresizershrinker.core.filters.domain.FavoriteFiltersInteractor
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.parseImageFromIntent
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.navigate
 import ru.tech.imageresizershrinker.core.ui.widget.utils.setContentWithWindowSizeClass
 import ru.tech.imageresizershrinker.feature.main.presentation.viewModel.MainViewModel
 import ru.tech.imageresizershrinker.presentation.components.AppContent
@@ -39,13 +47,30 @@ class AppActivity : M3Activity() {
     @Inject
     lateinit var favoriteFiltersInteractor: FavoriteFiltersInteractor<Bitmap>
 
+    private var router: Router<Screen>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         parseImage(intent)
 
+        val rootRouterContext = defaultRouterContext()
         setContentWithWindowSizeClass {
-            AppContent(viewModel = viewModel)
+            CompositionLocalProvider(
+                LocalRouterContext provides rootRouterContext
+            ) {
+                val composedRouter = rememberRouter(type = Screen::class) {
+                    listOf(Screen.Main)
+                }
+
+                SideEffect { router = composedRouter }
+
+                CompositionLocalProvider(
+                    LocalNavController provides composedRouter
+                ) {
+                    AppContent(viewModel = viewModel)
+                }
+            }
         }
     }
 
@@ -63,7 +88,9 @@ class AppActivity : M3Activity() {
             },
             onGetUris = viewModel::updateUris,
             showToast = viewModel::showToast,
-            navigate = viewModel.navController::navigate,
+            navigate = {
+                router?.navigate(it)
+            },
             notHasUris = viewModel.uris.isNullOrEmpty(),
             intent = intent,
             onWantGithubReview = viewModel::onWantGithubReview
