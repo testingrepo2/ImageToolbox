@@ -17,8 +17,28 @@
 
 package ru.tech.imageresizershrinker.core.ui.utils.navigation
 
+import android.annotation.SuppressLint
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
-import dev.olshevski.navigation.reimagined.NavController
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 
 val LocalNavController =
-    compositionLocalOf<NavController<Screen>> { error("NavController not present") }
+    compositionLocalOf<NavHostController> { error("NavController not present") }
+
+fun NavHostController.pop() = navigateUp()
+
+val NavHostController.backstack: List<NavBackStackEntry>
+    @SuppressLint("RestrictedApi")
+    @Composable
+    get() = currentBackStack.collectAsState(
+        emptyList()
+    ).value
+
+val NavHostController.currentScreen: Screen?
+    @Composable
+    get() = null //currentBackStackEntryAsState().value?.toRoute<Any>() as? Screen
+
+fun NavHostController.currentScreen(): Screen? =
+    null //currentBackStackEntry?.toRoute<Any>() as? Screen

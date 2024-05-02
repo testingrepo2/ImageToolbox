@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.launch
 import ru.tech.imageresizershrinker.core.resources.BuildConfig
 import ru.tech.imageresizershrinker.core.resources.R
@@ -52,6 +51,7 @@ import ru.tech.imageresizershrinker.core.ui.utils.helper.AppVersionPreRelease
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ProvidesValue
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.currentScreen
 import ru.tech.imageresizershrinker.core.ui.widget.buttons.EnhancedIconButton
 import ru.tech.imageresizershrinker.core.ui.widget.modifier.pulsate
 import ru.tech.imageresizershrinker.core.ui.widget.modifier.rotateAnimation
@@ -118,7 +118,7 @@ internal fun MainTopAppBar(
                     enableAutoShadowAndBorder = false,
                     onClick = {
                         if (settingsState.useFullscreenSettings) {
-                            if (navController.backstack.entries.lastOrNull()?.destination !is Screen.Settings) {
+                            if (navController.currentScreen() !is Screen.Settings) {
                                 navController.navigate(Screen.Settings)
                             }
                         } else {

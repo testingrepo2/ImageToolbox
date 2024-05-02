@@ -21,7 +21,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import dev.olshevski.navigation.reimagined.navigate
 import ru.tech.imageresizershrinker.core.crash.components.M3Activity
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.parseImageFromIntent
 import ru.tech.imageresizershrinker.core.ui.utils.provider.setContentWithWindowSizeClass
@@ -57,7 +56,7 @@ class AppActivity : M3Activity() {
             },
             onGetUris = viewModel::updateUris,
             showToast = viewModel::showToast,
-            navigate = viewModel.navController::navigate,
+            navigate = viewModel::navigate,
             notHasUris = viewModel.uris.isNullOrEmpty(),
             intent = intent,
             onWantGithubReview = viewModel::onWantGithubReview

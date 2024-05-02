@@ -20,11 +20,13 @@ package ru.tech.imageresizershrinker.core.ui.widget.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import dev.olshevski.navigation.reimagined.NavHost
-import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
-import dev.olshevski.navigation.reimagined.navigate
-import dev.olshevski.navigation.reimagined.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.findActivity
 
 @Composable
@@ -32,14 +34,17 @@ inline fun <reified VM : ViewModel> ScopedViewModelContainer(
     crossinline content: @Composable VM.(disposable: @Composable () -> Unit) -> Unit
 ) {
     val context = LocalContext.current
-    val navController = rememberNavController(startDestination = 0)
-    NavHost(navController) { nav ->
-        with(hiltViewModel<VM>()) {
-            content {
-                DisposableEffect(Unit) {
-                    onDispose {
-                        if (context.findActivity()?.isChangingConfigurations == false) {
-                            navController.navigate(nav + 1)
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = Route(0)) {
+        composable<Route> {
+            val nav = it.toRoute<Route>().id
+            with(hiltViewModel<VM>()) {
+                content {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            if (context.findActivity()?.isChangingConfigurations == false) {
+                                navController.navigate(Route(nav + 1))
+                            }
                         }
                     }
                 }
@@ -47,3 +52,8 @@ inline fun <reified VM : ViewModel> ScopedViewModelContainer(
         }
     }
 }
+
+@Serializable
+class Route(
+    val id: Int
+)

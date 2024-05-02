@@ -77,8 +77,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.getSystemService
-import dev.olshevski.navigation.reimagined.navigate
-import dev.olshevski.navigation.reimagined.popUpTo
 import kotlinx.coroutines.launch
 import ru.tech.imageresizershrinker.core.resources.R
 import ru.tech.imageresizershrinker.core.settings.presentation.provider.LocalSettingsState
@@ -179,16 +177,20 @@ internal fun RowScope.ScreenPreferenceSelection(
                                 if (pressed) 6.dp
                                 else 18.dp
                             )
+                            Modifier
+                                .widthIn(min = 1.dp)
+                                .fillMaxWidth()
                             PreferenceItemOverload(
                                 onClick = {
-                                    navController.popUpTo { it == Screen.Main }
-                                    navController.navigate(screen)
+                                    navController.navigate(screen) {
+                                        popUpTo(Screen.Main) { inclusive = false }
+                                    }
                                 },
                                 color = MaterialTheme.colorScheme.surfaceContainerLow,
-                                modifier = Modifier
-                                    .widthIn(min = 1.dp)
-                                    .fillMaxWidth()
-                                    .animateItemPlacement(),
+                                modifier = Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null
+                                ),
                                 shape = RoundedCornerShape(cornerSize),
                                 title = stringResource(screen.title),
                                 subtitle = stringResource(screen.subtitle),

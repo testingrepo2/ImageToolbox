@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,10 +41,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import dev.olshevski.navigation.reimagined.NavAction
-import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import ru.tech.imageresizershrinker.core.crash.components.GlobalExceptionHandler
 import ru.tech.imageresizershrinker.core.filters.presentation.utils.LocalFavoriteFiltersInteractor
 import ru.tech.imageresizershrinker.core.resources.emoji.Emoji
@@ -61,6 +60,7 @@ import ru.tech.imageresizershrinker.core.ui.utils.confetti.rememberConfettiHostS
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.isInstalledFromPlayStore
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ReviewHandler
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.currentScreen
 import ru.tech.imageresizershrinker.core.ui.utils.provider.LocalImageLoader
 import ru.tech.imageresizershrinker.core.ui.widget.UpdateSheet
 import ru.tech.imageresizershrinker.core.ui.widget.haptics.customHapticFeedback
@@ -90,21 +90,22 @@ fun RootContent(
     var randomEmojiKey by remember {
         mutableIntStateOf(0)
     }
-    val backstack = viewModel.navController.backstack.entries
-    LaunchedEffect(backstack) {
+    val navController = rememberNavController()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigateFlow.collectLatest { screen ->
+            navController.navigate(screen)
+        }
+    }
+
+    val currentDestination = navController.currentScreen
+    LaunchedEffect(currentDestination) {
         delay(200L) // Delay for transition
         randomEmojiKey++
     }
 
-    val currentDestination by remember(backstack) {
-        derivedStateOf {
-            backstack.lastOrNull()
-        }
-    }
     LaunchedEffect(currentDestination) {
-        currentDestination?.takeIf {
-            viewModel.navController.backstack.action == NavAction.Navigate
-        }?.destination?.let {
+        currentDestination?.let {
             GlobalExceptionHandler.registerScreenOpen(it)
         }
     }
@@ -134,7 +135,7 @@ fun RootContent(
         LocalToastHostState provides viewModel.toastHostState,
         LocalSettingsState provides settingsState,
         LocalSettingsInteractor provides viewModel.getSettingsInteractor(),
-        LocalNavController provides viewModel.navController,
+        LocalNavController provides navController,
         LocalEditPresetsState provides editPresetsState,
         LocalConfettiHostState provides rememberConfettiHostState(),
         LocalImageLoader provides viewModel.imageLoader,
@@ -202,7 +203,7 @@ fun RootContent(
                     extraImageType = viewModel.extraImageType,
                     visible = showSelectSheet,
                     navigate = { screen ->
-                        viewModel.navController.navigate(screen)
+                        navController.navigate(screen)
                         showSelectSheet.value = false
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             clipboardManager.clearPrimaryClip()

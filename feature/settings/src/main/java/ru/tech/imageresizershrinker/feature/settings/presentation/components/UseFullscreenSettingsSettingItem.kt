@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -34,6 +33,7 @@ import ru.tech.imageresizershrinker.core.resources.R
 import ru.tech.imageresizershrinker.core.settings.presentation.provider.LocalSettingsState
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.currentScreen
 import ru.tech.imageresizershrinker.core.ui.widget.modifier.ContainerShapeDefaults
 import ru.tech.imageresizershrinker.core.ui.widget.preferences.PreferenceRowSwitch
 
@@ -54,7 +54,7 @@ fun UseFullscreenSettingsSettingItem(
         subtitle = stringResource(R.string.fullscreen_settings_sub),
         checked = settingsState.useFullscreenSettings,
         onClick = {
-            if (it && navController.backstack.entries.lastOrNull()?.destination !is Screen.Settings) {
+            if (it && navController.currentScreen() !is Screen.Settings) {
                 navController.navigate(Screen.Settings)
                 GlobalScope.launch {
                     delay(1000)

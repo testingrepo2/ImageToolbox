@@ -19,13 +19,15 @@ plugins {
     alias(libs.plugins.image.toolbox.library)
     alias(libs.plugins.image.toolbox.hilt)
     alias(libs.plugins.image.toolbox.compose)
+    kotlin("plugin.serialization")
 }
 
 android.namespace = "ru.tech.imageresizershrinker.core.ui"
 
 dependencies {
-    api(libs.reimagined)
-    api(libs.reimagined.hilt)
+    api(libs.kotlinx.serialization)
+    api(libs.navigation.compose)
+    api(libs.navigation.compose.hilt)
 
     api(libs.androidx.documentfile)
 
@@ -70,6 +72,5 @@ dependencies {
     "marketImplementation"(libs.app.update.ktx)
 
     api(projects.core.resources)
-
     implementation(projects.core.settings)
 }

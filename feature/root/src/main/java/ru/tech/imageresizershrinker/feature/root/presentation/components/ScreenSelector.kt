@@ -17,18 +17,32 @@
 
 package ru.tech.imageresizershrinker.feature.root.presentation.components
 
+import android.os.Build
+import android.os.Bundle
+import android.os.Parcelable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.t8rin.dynamic.theme.LocalDynamicThemeState
 import com.t8rin.dynamic.theme.rememberAppColorTuple
-import dev.olshevski.navigation.reimagined.AnimatedNavHost
-import dev.olshevski.navigation.reimagined.NavTransitionQueueing
-import dev.olshevski.navigation.reimagined.pop
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import ru.tech.imageresizershrinker.core.settings.presentation.provider.LocalSettingsState
-import ru.tech.imageresizershrinker.core.ui.utils.animation.NavigationTransition
+import ru.tech.imageresizershrinker.core.ui.utils.animation.FancyTransitionEasing
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.backstack
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.pop
 import ru.tech.imageresizershrinker.feature.apng_tools.presentation.ApngToolsScreen
 import ru.tech.imageresizershrinker.feature.bytes_resize.presentation.BytesResizeScreen
 import ru.tech.imageresizershrinker.feature.cipher.presentation.FileCipherScreen
@@ -59,13 +73,14 @@ import ru.tech.imageresizershrinker.feature.single_edit.presentation.SingleEditS
 import ru.tech.imageresizershrinker.feature.svg.presentation.SvgScreen
 import ru.tech.imageresizershrinker.feature.watermarking.presentation.WatermarkingScreen
 import ru.tech.imageresizershrinker.feature.zip.presentation.ZipScreen
+import kotlin.reflect.typeOf
 
 @Composable
 internal fun ScreenSelector(
     viewModel: RootViewModel
 ) {
     val scope = rememberCoroutineScope()
-    val navController = viewModel.navController
+    val navController = LocalNavController.current
     val settingsState = LocalSettingsState.current
     val themeState = LocalDynamicThemeState.current
     val appColorTuple = rememberAppColorTuple(
@@ -73,228 +88,295 @@ internal fun ScreenSelector(
         dynamicColor = settingsState.isDynamicColors,
         darkTheme = settingsState.isNightMode
     )
+    val backstack = navController.backstack
     val onGoBack: () -> Unit = {
         viewModel.updateUris(null)
         navController.apply {
-            if (backstack.entries.size > 1) pop()
+            if (backstack.size > 1) pop()
         }
         scope.launch {
-            delay(350L) //delay for screen anim
+            delay(350L) //delay for  it.toRoute<Screen.SingleEdit>() anim
             themeState.updateColorTuple(appColorTuple)
         }
     }
 
-    AnimatedNavHost(
-        controller = navController,
-        transitionQueueing = NavTransitionQueueing.ConflateQueued,
-        transitionSpec = NavigationTransition
-    ) { screen ->
-        when (screen) {
-            is Screen.Settings -> {
-                SettingsScreen(
-                    onTryGetUpdate = viewModel::tryGetUpdate,
-                    updateAvailable = viewModel.updateAvailable,
-                    onGoBack = onGoBack
-                )
-            }
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Main,
+        enterTransition = {
+            slideInHorizontally(
+                animationSpec = tween(600, easing = FancyTransitionEasing),
+                initialOffsetX = { screenWidthDp }) + fadeIn(
+                tween(300, 100)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                animationSpec = tween(600, easing = FancyTransitionEasing),
+                targetOffsetX = { -screenWidthDp }) + fadeOut(
+                tween(300, 100)
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                animationSpec = tween(600, easing = FancyTransitionEasing),
+                initialOffsetX = { -screenWidthDp }) + fadeIn(
+                tween(300, 100)
+            )
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                animationSpec = tween(600, easing = FancyTransitionEasing),
+                targetOffsetX = { screenWidthDp }) + fadeOut(
+                tween(300, 100)
+            )
+        }
+    ) {
+        composable<Screen.Settings> {
+            SettingsScreen(
+                onTryGetUpdate = viewModel::tryGetUpdate,
+                updateAvailable = viewModel.updateAvailable,
+                onGoBack = onGoBack
+            )
+        }
+        composable<Screen.EasterEgg> {
+            EasterEggScreen(onGoBack = onGoBack)
+        }
 
-            is Screen.EasterEgg -> {
-                EasterEggScreen(onGoBack = onGoBack)
-            }
 
-            is Screen.Main -> {
-                MainScreen(
-                    onTryGetUpdate = viewModel::tryGetUpdate,
-                    updateAvailable = viewModel.updateAvailable,
-                    updateUris = viewModel::updateUris
-                )
-            }
+        composable<Screen.Main> {
+            MainScreen(
+                onTryGetUpdate = viewModel::tryGetUpdate,
+                updateAvailable = viewModel.updateAvailable,
+                updateUris = viewModel::updateUris
+            )
+        }
 
-            is Screen.SingleEdit -> {
-                SingleEditScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.SingleEdit> {
+            SingleEditScreen(
+                uriState = it.toRoute<Screen.SingleEdit>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.ResizeAndConvert -> {
-                ResizeAndConvertScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.ResizeAndConvert> {
+            ResizeAndConvertScreen(
+                uriState = it.toRoute<Screen.ResizeAndConvert>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.DeleteExif -> {
-                DeleteExifScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.DeleteExif> {
+            DeleteExifScreen(
+                uriState = it.toRoute<Screen.DeleteExif>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.ResizeByBytes -> {
-                BytesResizeScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.ResizeByBytes> {
+            BytesResizeScreen(
+                uriState = it.toRoute<Screen.ResizeByBytes>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Crop -> {
-                CropScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Crop> {
+            CropScreen(
+                uriState = it.toRoute<Screen.Crop>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.PickColorFromImage -> {
-                PickColorFromImageScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.PickColorFromImage> {
+            PickColorFromImageScreen(
+                uriState = it.toRoute<Screen.PickColorFromImage>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.ImagePreview -> {
-                ImagePreviewScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.ImagePreview> {
+            ImagePreviewScreen(
+                uriState = it.toRoute<Screen.ImagePreview>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.GeneratePalette -> {
-                GeneratePaletteScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.GeneratePalette> {
+            GeneratePaletteScreen(
+                uriState = it.toRoute<Screen.GeneratePalette>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Compare -> {
-                CompareScreen(
-                    comparableUris = screen.uris
-                        ?.takeIf { it.size == 2 }
-                        ?.let { it[0] to it[1] },
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Compare> { backStackEntry ->
+            CompareScreen(
+                comparableUris = backStackEntry.toRoute<Screen.Compare>().uris
+                    ?.takeIf { it.size == 2 }
+                    ?.let { it[0] to it[1] },
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.LoadNetImage -> {
-                LoadNetImageScreen(
-                    url = screen.url,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.LoadNetImage> {
+            LoadNetImageScreen(
+                url = it.toRoute<Screen.LoadNetImage>().url,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Filter -> {
-                FiltersScreen(
-                    type = screen.type,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Filter>(
+            typeMap = mapOf(typeOf<Screen.Filter.Type?>() to FilterNavType)
+        ) {
+            FiltersScreen(
+                type = it.toRoute<Screen.Filter>().type,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.LimitResize -> {
-                LimitsResizeScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.LimitResize> {
+            LimitsResizeScreen(
+                uriState = it.toRoute<Screen.LimitResize>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Draw -> {
-                DrawScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Draw> {
+            DrawScreen(
+                uriState = it.toRoute<Screen.Draw>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Cipher -> {
-                FileCipherScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Cipher> {
+            FileCipherScreen(
+                uriState = it.toRoute<Screen.Cipher>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.EraseBackground -> {
-                EraseBackgroundScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.EraseBackground> {
+            EraseBackgroundScreen(
+                uriState = it.toRoute<Screen.EraseBackground>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.ImageStitching -> {
-                ImageStitchingScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.ImageStitching> {
+            ImageStitchingScreen(
+                uriState = it.toRoute<Screen.ImageStitching>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.PdfTools -> {
-                PdfToolsScreen(
-                    type = screen.type,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.PdfTools>(
+            typeMap = mapOf(typeOf<Screen.PdfTools.Type?>() to PdfToolsNavType)
+        ) {
+            PdfToolsScreen(
+                type = it.toRoute<Screen.PdfTools>().type,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.RecognizeText -> {
-                RecognizeTextScreen(
-                    uriState = screen.uri,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.RecognizeText> {
+            RecognizeTextScreen(
+                uriState = it.toRoute<Screen.RecognizeText>().uri,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.GradientMaker -> {
-                GradientMakerScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.GradientMaker> {
+            GradientMakerScreen(
+                uriState = it.toRoute<Screen.GradientMaker>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Watermarking -> {
-                WatermarkingScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Watermarking> {
+            WatermarkingScreen(
+                uriState = it.toRoute<Screen.Watermarking>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.GifTools -> {
-                GifToolsScreen(
-                    typeState = screen.type,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.GifTools>(
+            typeMap = mapOf(typeOf<Screen.GifTools.Type?>() to GifToolsNavType)
+        ) {
+            GifToolsScreen(
+                typeState = it.toRoute<Screen.GifTools>().type,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.ApngTools -> {
-                ApngToolsScreen(
-                    typeState = screen.type,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.ApngTools>(
+            typeMap = mapOf(typeOf<Screen.ApngTools.Type?>() to ApngToolsNavType)
+        ) {
+            ApngToolsScreen(
+                typeState = it.toRoute<Screen.ApngTools>().type,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Zip -> {
-                ZipScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Zip> {
+            ZipScreen(
+                uriState = it.toRoute<Screen.Zip>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.JxlTools -> {
-                JxlToolsScreen(
-                    typeState = screen.type,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.JxlTools>(
+            typeMap = mapOf(typeOf<Screen.JxlTools.Type?>() to JxlToolsNavType)
+        ) {
+            JxlToolsScreen(
+                typeState = it.toRoute<Screen.JxlTools>().type,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Svg -> {
-                SvgScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Svg> {
+            SvgScreen(
+                uriState = it.toRoute<Screen.Svg>().uris,
+                onGoBack = onGoBack
+            )
+        }
 
-            is Screen.Convert -> {
-                ConvertScreen(
-                    uriState = screen.uris,
-                    onGoBack = onGoBack
-                )
-            }
+        composable<Screen.Convert> {
+            ConvertScreen(
+                uriState = it.toRoute<Screen.Convert>().uris,
+                onGoBack = onGoBack
+            )
         }
     }
 
     ScreenBasedMaxBrightnessEnforcement()
+}
+
+private val PdfToolsNavType = navType<Screen.PdfTools.Type>()
+private val ApngToolsNavType = navType<Screen.ApngTools.Type>()
+private val GifToolsNavType = navType<Screen.GifTools.Type>()
+private val JxlToolsNavType = navType<Screen.JxlTools.Type>()
+private val FilterNavType = navType<Screen.Filter.Type>()
+
+inline fun <reified T : Parcelable> navType() = object : NavType<T?>(true) {
+
+    @Suppress("DEPRECATION")
+    override fun get(
+        bundle: Bundle,
+        key: String
+    ): T? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        bundle.getParcelable(key, T::class.java)
+    } else {
+        bundle.getParcelable(key)
+    }
+
+    override fun parseValue(value: String): T {
+        return Json.decodeFromString(value)
+    }
+
+    override fun put(
+        bundle: Bundle,
+        key: String,
+        value: T?
+    ) = bundle.putParcelable(key, value)
+
 }

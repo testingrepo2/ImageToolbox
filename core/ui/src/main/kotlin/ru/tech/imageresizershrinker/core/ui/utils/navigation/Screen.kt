@@ -42,6 +42,7 @@ import androidx.compose.material.icons.rounded.Preview
 import androidx.compose.material.icons.rounded.Texture
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import ru.tech.imageresizershrinker.core.resources.R
 import ru.tech.imageresizershrinker.core.resources.icons.Apng
 import ru.tech.imageresizershrinker.core.resources.icons.ApngBox
@@ -64,6 +65,7 @@ import ru.tech.imageresizershrinker.core.resources.icons.Svg
 import ru.tech.imageresizershrinker.core.resources.icons.Toolbox
 import ru.tech.imageresizershrinker.core.resources.icons.Transparency
 
+@Serializable
 @Parcelize
 sealed class Screen(
     open val id: Int,
@@ -139,25 +141,30 @@ sealed class Screen(
             is Convert -> Icons.Outlined.ImageConvert
         }
 
+    @Serializable
     data object Settings : Screen(
         id = -3,
         title = 0,
         subtitle = 0
     )
 
+    @Serializable
     data object EasterEgg : Screen(
         id = -2,
         title = 0,
         subtitle = 0
     )
 
+    @Serializable
     data object Main : Screen(
         id = -1,
         title = 0,
         subtitle = 0
     )
 
+    @Serializable
     data class SingleEdit(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 0,
@@ -165,23 +172,27 @@ sealed class Screen(
         subtitle = R.string.single_edit_sub
     )
 
+    @Serializable
     data class ResizeAndConvert(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 1,
         title = R.string.resize_and_convert,
         subtitle = R.string.resize_and_convert_sub
     )
 
+    @Serializable
     data class ResizeByBytes(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 2,
         title = R.string.by_bytes_resize,
         subtitle = R.string.by_bytes_resize_sub
     )
 
+    @Serializable
     data class Crop(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 3,
@@ -189,6 +200,7 @@ sealed class Screen(
         subtitle = R.string.crop_sub
     )
 
+    @Serializable
     data class Filter(
         val type: Type? = null
     ) : Screen(
@@ -196,6 +208,7 @@ sealed class Screen(
         title = R.string.filter,
         subtitle = R.string.filter_sub
     ) {
+        @Serializable
         @Parcelize
         sealed class Type(
             @StringRes val title: Int,
@@ -208,15 +221,18 @@ sealed class Screen(
                     is Basic -> Icons.Outlined.AutoFixHigh
                 }
 
+            @Serializable
             data class Masking(
+                @Serializable(UriSerializer::class)
                 val uri: Uri? = null
             ) : Type(
                 title = R.string.mask_filter,
                 subtitle = R.string.mask_filter_sub
             )
 
+            @Serializable
             data class Basic(
-                val uris: List<Uri>? = null
+                val uris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.full_filter,
                 subtitle = R.string.full_filter_sub
@@ -233,7 +249,9 @@ sealed class Screen(
         }
     }
 
+    @Serializable
     data class Draw(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 5,
@@ -241,7 +259,9 @@ sealed class Screen(
         subtitle = R.string.draw_sub
     )
 
+    @Serializable
     data class Cipher(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 6,
@@ -249,7 +269,9 @@ sealed class Screen(
         subtitle = R.string.cipher_sub
     )
 
+    @Serializable
     data class EraseBackground(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 7,
@@ -257,22 +279,25 @@ sealed class Screen(
         subtitle = R.string.background_remover_sub
     )
 
+    @Serializable
     data class ImagePreview(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 8,
         title = R.string.image_preview,
         subtitle = R.string.image_preview_sub
     )
 
+    @Serializable
     data class ImageStitching(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 9,
         title = R.string.image_stitching,
         subtitle = R.string.image_stitching_sub
     )
 
+    @Serializable
     data class LoadNetImage(
         val url: String = ""
     ) : Screen(
@@ -281,7 +306,9 @@ sealed class Screen(
         subtitle = R.string.load_image_from_net_sub
     )
 
+    @Serializable
     data class PickColorFromImage(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 11,
@@ -289,7 +316,9 @@ sealed class Screen(
         subtitle = R.string.pick_color_sub
     )
 
+    @Serializable
     data class GeneratePalette(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 12,
@@ -297,30 +326,34 @@ sealed class Screen(
         subtitle = R.string.palette_sub
     )
 
+    @Serializable
     data class DeleteExif(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 13,
         title = R.string.delete_exif,
         subtitle = R.string.delete_exif_sub
     )
 
+    @Serializable
     data class Compare(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 14,
         title = R.string.compare,
         subtitle = R.string.compare_sub
     )
 
+    @Serializable
     data class LimitResize(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 15,
         title = R.string.limits_resize,
         subtitle = R.string.limits_resize_sub
     )
 
+    @Serializable
     data class PdfTools(
         val type: Type? = null
     ) : Screen(
@@ -328,6 +361,7 @@ sealed class Screen(
         title = R.string.pdf_tools,
         subtitle = R.string.pdf_tools_sub
     ) {
+        @Serializable
         @Parcelize
         sealed class Type(
             @StringRes val title: Int,
@@ -341,22 +375,27 @@ sealed class Screen(
                     is Preview -> Icons.Rounded.Preview
                 }
 
+            @Serializable
             data class Preview(
+                @Serializable(UriSerializer::class)
                 val pdfUri: Uri? = null
             ) : Type(
                 title = R.string.preview_pdf,
                 subtitle = R.string.preview_pdf_sub
             )
 
+            @Serializable
             data class PdfToImages(
+                @Serializable(UriSerializer::class)
                 val pdfUri: Uri? = null
             ) : Type(
                 title = R.string.pdf_to_images,
                 subtitle = R.string.pdf_to_images_sub
             )
 
+            @Serializable
             data class ImagesToPdf(
-                val imageUris: List<Uri>? = null
+                val imageUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.images_to_pdf,
                 subtitle = R.string.images_to_pdf_sub
@@ -374,7 +413,9 @@ sealed class Screen(
         }
     }
 
+    @Serializable
     data class RecognizeText(
+        @Serializable(UriSerializer::class)
         val uri: Uri? = null
     ) : Screen(
         id = 17,
@@ -382,22 +423,25 @@ sealed class Screen(
         subtitle = R.string.recognize_text_sub
     )
 
+    @Serializable
     data class GradientMaker(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 18,
         title = R.string.gradient_maker,
         subtitle = R.string.gradient_maker_sub,
     )
 
+    @Serializable
     data class Watermarking(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 19,
         title = R.string.watermarking,
         subtitle = R.string.watermarking_sub,
     )
 
+    @Serializable
     data class GifTools(
         val type: Type? = null
     ) : Screen(
@@ -405,6 +449,7 @@ sealed class Screen(
         title = R.string.gif_tools,
         subtitle = R.string.gif_tools_sub
     ) {
+        @Serializable
         @Parcelize
         sealed class Type(
             @StringRes val title: Int,
@@ -418,22 +463,26 @@ sealed class Screen(
                     is ImageToGif -> Icons.Rounded.Gif
                 }
 
+            @Serializable
             data class GifToImage(
+                @Serializable(UriSerializer::class)
                 val gifUri: Uri? = null
             ) : Type(
                 title = R.string.gif_type_to_image,
                 subtitle = R.string.gif_type_to_image_sub
             )
 
+            @Serializable
             data class ImageToGif(
-                val imageUris: List<Uri>? = null
+                val imageUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.gif_type_to_gif,
                 subtitle = R.string.gif_type_to_gif_sub
             )
 
+            @Serializable
             data class GifToJxl(
-                val gifUris: List<Uri>? = null
+                val gifUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.gif_type_to_jxl,
                 subtitle = R.string.gif_type_to_jxl_sub
@@ -451,6 +500,7 @@ sealed class Screen(
         }
     }
 
+    @Serializable
     data class ApngTools(
         val type: Type? = null
     ) : Screen(
@@ -458,6 +508,7 @@ sealed class Screen(
         title = R.string.apng_tools,
         subtitle = R.string.apng_tools_sub
     ) {
+        @Serializable
         @Parcelize
         sealed class Type(
             @StringRes val title: Int,
@@ -471,22 +522,26 @@ sealed class Screen(
                     is ImageToApng -> Icons.Rounded.Apng
                 }
 
+            @Serializable
             data class ApngToImage(
+                @Serializable(UriSerializer::class)
                 val apngUri: Uri? = null
             ) : Type(
                 title = R.string.apng_type_to_image,
                 subtitle = R.string.apng_type_to_image_sub
             )
 
+            @Serializable
             data class ImageToApng(
-                val imageUris: List<Uri>? = null
+                val imageUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.apng_type_to_apng,
                 subtitle = R.string.apng_type_to_apng_sub
             )
 
+            @Serializable
             data class ApngToJxl(
-                val apngUris: List<Uri>? = null
+                val apngUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.apng_type_to_jxl,
                 subtitle = R.string.apng_type_to_jxl_sub
@@ -504,14 +559,16 @@ sealed class Screen(
         }
     }
 
+    @Serializable
     data class Zip(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 22,
         title = R.string.zip,
         subtitle = R.string.zip_sub
     )
 
+    @Serializable
     data class JxlTools(
         val type: Type? = null
     ) : Screen(
@@ -519,6 +576,7 @@ sealed class Screen(
         title = R.string.jxl_tools,
         subtitle = R.string.jxl_tools_sub
     ) {
+        @Serializable
         @Parcelize
         sealed class Type(
             @StringRes val title: Int,
@@ -533,29 +591,34 @@ sealed class Screen(
                     is JxlToJpeg -> Icons.Outlined.Jpg
                 }
 
+            @Serializable
             data class JxlToJpeg(
-                val jxlImageUris: List<Uri>? = null
+                val jxlImageUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.jxl_type_to_jpeg,
                 subtitle = R.string.jxl_type_to_jpeg_sub
             )
 
+            @Serializable
             data class JpegToJxl(
-                val jpegImageUris: List<Uri>? = null
+                val jpegImageUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.jpeg_type_to_jxl,
                 subtitle = R.string.jpeg_type_to_jxl_sub
             )
 
+            @Serializable
             data class JxlToImage(
+                @Serializable(UriSerializer::class)
                 val jxlUri: Uri? = null
             ) : Type(
                 title = R.string.jxl_type_to_images,
                 subtitle = R.string.jxl_type_to_images_sub
             )
 
+            @Serializable
             data class ImageToJxl(
-                val imageUris: List<Uri>? = null
+                val imageUris: List<@Serializable(UriSerializer::class) Uri>? = null
             ) : Type(
                 title = R.string.jxl_type_to_jxl,
                 subtitle = R.string.jxl_type_to_jxl_sub
@@ -574,16 +637,18 @@ sealed class Screen(
         }
     }
 
+    @Serializable
     data class Svg(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 24,
         title = R.string.images_to_svg,
         subtitle = R.string.images_to_svg_sub
     )
 
+    @Serializable
     data class Convert(
-        val uris: List<Uri>? = null
+        val uris: List<@Serializable(UriSerializer::class) Uri>? = null
     ) : Screen(
         id = 25,
         title = R.string.convert,

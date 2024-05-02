@@ -45,8 +45,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.t8rin.dynamic.theme.LocalDynamicThemeState
-import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import kotlinx.coroutines.launch
 import ru.tech.imageresizershrinker.core.domain.image.model.ImageFormat
 import ru.tech.imageresizershrinker.core.domain.image.model.ImageFormatGroup
@@ -263,7 +263,8 @@ fun BytesResizeScreen(
                             Preset.Percentage(it)
                         },
                         includeTelegramOption = false,
-                        onValueChange = viewModel::selectPreset
+                        onValueChange = viewModel::selectPreset,
+                        isBytesResize = true
                     )
                 }
             }

@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import dev.olshevski.navigation.reimagined.navigate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.tech.imageresizershrinker.core.resources.R
@@ -51,6 +50,7 @@ import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.isInstalle
 import ru.tech.imageresizershrinker.core.ui.utils.helper.ContextUtils.openWriteableStream
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.LocalNavController
 import ru.tech.imageresizershrinker.core.ui.utils.navigation.Screen
+import ru.tech.imageresizershrinker.core.ui.utils.navigation.currentScreen
 import ru.tech.imageresizershrinker.core.ui.utils.provider.LocalContainerShape
 import ru.tech.imageresizershrinker.core.ui.utils.provider.ProvideContainerDefaults
 import ru.tech.imageresizershrinker.core.ui.widget.modifier.ContainerShapeDefaults
@@ -221,7 +221,7 @@ internal fun SettingItem(
                 val navController = LocalNavController.current
                 LaunchedEffect(clicks) {
                     if (clicks >= 3) {
-                        if (navController.backstack.entries.lastOrNull()?.destination != Screen.EasterEgg) {
+                        if (navController.currentScreen() != Screen.EasterEgg) {
                             navController.navigate(Screen.EasterEgg)
                         }
                         clicks = 0

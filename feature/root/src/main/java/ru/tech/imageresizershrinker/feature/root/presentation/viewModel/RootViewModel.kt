@@ -29,9 +29,11 @@ import com.t8rin.dynamic.theme.ColorTuple
 import com.t8rin.dynamic.theme.extractPrimaryColor
 import com.t8rin.logger.makeLog
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.olshevski.navigation.reimagined.navController
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Element
@@ -64,8 +66,6 @@ class RootViewModel @Inject constructor(
 
     private val _settingsState = mutableStateOf(SettingsState.Default)
     val settingsState: SettingsState by _settingsState
-
-    val navController = navController<Screen>(Screen.Main)
 
     private val _uris = mutableStateOf<List<Uri>?>(null)
     val uris by _uris
@@ -333,5 +333,14 @@ class RootViewModel @Inject constructor(
     }
 
     fun getSettingsInteractor(): SettingsInteractor = settingsManager
+
+    private val _navigateFlow: Channel<Screen> = Channel(Channel.BUFFERED)
+    val navigateFlow: Flow<Screen> = _navigateFlow.receiveAsFlow()
+
+    fun navigate(screen: Screen) {
+        viewModelScope.launch {
+            _navigateFlow.send(screen)
+        }
+    }
 
 }
