@@ -263,6 +263,11 @@
                 <category android:name="android.intent.category.OPENABLE" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.ImageResizer" />
     </application>
 
 </manifest>

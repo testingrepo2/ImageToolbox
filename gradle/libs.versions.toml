@@ -17,6 +17,7 @@ aire = "0.9.90"
 jxlCoderCoil = "2.2.0"
 jxlCoder = "2.2.0"
 
+uCrop = "2.2.9"
 tesseract = "4.7.0"
 composeVersion = "1.7.0-beta01"
 androidx-datastorePreferencesAndroid = "1.1.1"
@@ -109,6 +110,7 @@ espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "esp
 
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
+uCrop = { module = "com.github.yalantis:ucrop", version.ref = "uCrop" }
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxMacroBenchmark" }
 tesseract = { module = "cz.adaptech.tesseract4android:tesseract4android-openmp", version.ref = "tesseract" }

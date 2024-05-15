@@ -18,9 +18,12 @@
 package ru.tech.imageresizershrinker.feature.crop.presentation
 
 
+import android.app.Activity
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -82,8 +85,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.net.toUri
 import com.smarttoolfactory.cropper.model.OutlineType
 import com.t8rin.dynamic.theme.LocalDynamicThemeState
+import com.yalantis.ucrop.UCrop
 import dev.olshevski.navigation.reimagined.hilt.hiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -123,6 +128,7 @@ import ru.tech.imageresizershrinker.feature.crop.presentation.components.AspectR
 import ru.tech.imageresizershrinker.feature.crop.presentation.components.CropMaskSelection
 import ru.tech.imageresizershrinker.feature.crop.presentation.components.Cropper
 import ru.tech.imageresizershrinker.feature.crop.presentation.viewModel.CropViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,19 +174,36 @@ fun CropScreen(
             }
         }
     }
-
-    val pickImageLauncher =
-        rememberImagePicker(
-            mode = localImagePickerMode(Picker.Single)
-        ) { uris ->
-            uris.takeIf { it.isNotEmpty() }?.firstOrNull()?.let {
-                viewModel.setUri(it) { t ->
-                    scope.launch {
-                        toastHostState.showError(context, t)
-                    }
+    val cropResult = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.setUri(UCrop.getOutput(result.data!!)!!) { t ->
+                scope.launch {
+                    toastHostState.showError(context, t)
                 }
             }
         }
+    }
+
+    val pickImageLauncher = rememberImagePicker(
+        mode = localImagePickerMode(Picker.Single)
+    ) { uris ->
+        uris.takeIf { it.isNotEmpty() }?.firstOrNull()?.let {
+            UCrop.of(it, File(context.cacheDir, "COCK").toUri()).withOptions(
+                UCrop.Options().apply {
+                    //setFreeStyleCropEnabled(true)
+
+                }
+            ).start(context, cropResult)
+
+            viewModel.setUri(it) { t ->
+                scope.launch {
+                    toastHostState.showError(context, t)
+                }
+            }
+        }
+    }
 
     val pickImage = pickImageLauncher::pickImage
 

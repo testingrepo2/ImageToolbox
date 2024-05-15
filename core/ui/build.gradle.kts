@@ -71,5 +71,7 @@ dependencies {
 
     api(projects.core.resources)
 
+    api(libs.uCrop)
+
     implementation(projects.core.settings)
 }
