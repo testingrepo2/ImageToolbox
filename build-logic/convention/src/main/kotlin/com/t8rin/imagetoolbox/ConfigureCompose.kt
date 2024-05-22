@@ -19,6 +19,9 @@ package com.t8rin.imagetoolbox
 
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
 internal fun Project.configureCompose(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
@@ -27,16 +30,12 @@ internal fun Project.configureCompose(
         buildFeatures {
             compose = true
         }
+        extensions.configure<ComposeCompilerGradlePluginExtension> {
+            enableStrongSkippingMode = true
 
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.findVersion("compose.compiler").get().toString()
-        }
-        kotlinOptions {
-            freeCompilerArgs += listOf(
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:stabilityConfigurationPath=" +
-                        "${project.rootProject.projectDir.absolutePath}/compose_compiler_config.conf"
-            )
+            reportsDestination = layout.buildDirectory.dir("compose_compiler")
+            stabilityConfigurationFile =
+                rootProject.layout.projectDirectory.file("compose_compiler_config.conf")
         }
     }
 }

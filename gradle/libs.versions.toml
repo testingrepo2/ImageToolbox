@@ -7,7 +7,6 @@ versionName = "2.8.2-alpha03"
 versionCode = "139"
 
 jvmTarget = "17"
-compose-compiler = "1.5.14"
 
 imageToolboxLibs = "1.5.4"
 
@@ -36,7 +35,7 @@ google-subjectSegmentation = "16.0.0-beta1"
 detekt = "1.23.6"
 detektCompose = "0.4.1"
 
-kotlin = "1.9.24"
+kotlin = "2.0.0"
 agp = "8.4.1"
 hilt = "2.51.1"
 gms = "4.4.1"
@@ -55,7 +54,7 @@ reviewKtx = "2.0.1"
 splashScreen = "1.2.0-alpha01"
 
 espresso = "3.5.1"
-ksp = "1.9.24-1.0.20"
+ksp = "2.0.0-1.0.21"
 
 androidx-test-ext-junit = "1.1.5"
 documentfile = "1.0.1"
@@ -131,6 +130,7 @@ agp-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 detekt-gradle = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektCompose" }
+compose-compiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
 image-toolbox-library = { id = "image.toolbox.library", version = "unspecified" }
