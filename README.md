@@ -98,7 +98,7 @@ or click one of the badges below.
 </p>
 </div>
 
-# ✨ Features
+# ✨ Features 
 
 - Batch processing
 - Applying filter chains (More than 190 various filters)
