@@ -59,7 +59,7 @@ apply filters, add some drawing, erase background, edit EXIF or even create PDF 
 
 <div align="center">
 
-# ✈️ Telegram Links
+# ✈️ Telegram Links 
 
 </br>
 <a href="https://t.me/t8rin_imagetoolbox">
